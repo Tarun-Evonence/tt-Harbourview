@@ -1,0 +1,27 @@
+steps:
+  # Pull the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['pull', 'us-docker.pkg.dev/festive-sunrise-007/alg/base@sha256:6e1f52f00bd50782d9a967ed87b6085264ab29f7d00c332c42debf879b43efcb']
+
+  # Create and activate a Conda environment, then build the Python wheel
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'run'
+      - '--workdir=/app'
+      - 'us-docker.pkg.dev/festive-sunrise-007/alg/base@sha256:6e1f52f00bd50782d9a967ed87b6085264ab29f7d00c332c42debf879b43efcb'
+      - '/bin/bash'
+      - '-c'
+      - |
+
+        conda create --name algenv --yes --quiet -c conda-forge python=3.9 &&
+
+        source activate algenv &&
+
+        python setup.py sdist bdist_wheel
+
+
+
+  # Upload the wheel to Cloud Storage
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args: ['cp', '-r', 'dist/*', 'gs://sy-testbucket/ks-test/']
+logsBucket: sy-testbucket/ks-test/logs/
