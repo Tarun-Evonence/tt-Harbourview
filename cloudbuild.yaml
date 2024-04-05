@@ -1,4 +1,3 @@
-#testing
 steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
